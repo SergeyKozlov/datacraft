@@ -1,8 +1,18 @@
 <?php
+namespace VideMe\Datacraft\model;
 
-use model\PostgreSQL;
+//=============================use model\PostgreSQL;
+use VideMe\Datacraft\tm;
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PostgreSQL.php');
+use VideMe\Datacraft\nad;
+//use VideMe\Datacraft;
+$tm = new TM();
+
+$welcome = new NAD();
+//use VideMe\Datacraft\model\PostgreSQL;
+use model;
+
+use Dotenv;
 
 class PG_insight extends PostgreSQL
 {

@@ -5,8 +5,17 @@
  * Date: 09.11.17
  * Time: 22:35
  */
+namespace VideMe\Datacraft\model;
+//namespace VideMe\Datacraft;
+use VideMe\Datacraft\nad;
+//use VideMe\Datacraft;
+//namespace VideMe\Datacraft\model\PostgreSQL;
+use VideMe\Datacraft\log\log;
+use Dotenv;
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
+$welcome = new NAD();
+
+//include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
 
 class PostgreSQL
 {
@@ -15,6 +24,7 @@ class PostgreSQL
         $this->pgConn = $this->pgConnect();
         //$this->pgConnOwn = $this->pgConnectOwn();
         $this->welcome = new NAD();
+        //$welcome = new NAD();
         $this->log = new log();
 
         $this->table_users = 'users';

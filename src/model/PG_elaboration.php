@@ -1,8 +1,23 @@
 <?php
+//namespace VideMe\Datacraft\model\PostgreSQL;
+//namespace VideMe\Datacraft\model\PostgreSQL;
+namespace VideMe\Datacraft\model;
 
-use model\PostgreSQL;
+//use Dotenv\Dotenv;
+use VideMe\Datacraft\TM;
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PostgreSQL.php');
+use VideMe\Datacraft\nad;
+//use VideMe\Datacraft;
+$welcome = new NAD();
+$tm = new TM();
+
+//==use VideMe\Datacraft\model\PostgreSQL;
+//use model\PostgreSQL;
+use model;
+
+use Dotenv;
+
+//include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PostgreSQL.php');
 
 class PG_elaboration extends PostgreSQL
 {

@@ -1,12 +1,15 @@
 <?php
+namespace VideMe\Datacraft\model;
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
+/*include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PostgreSQL.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PG_demo_el.php');
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PG_demo_insight.php');
+include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PG_demo_insight.php');*/
 
 use GeoIp2\Database\Reader;
-use model\PG_demo_insight;
+//===============use model\PG_demo_insight;
+use VideMe\Datacraft\nad;
+use VideMe\Datacraft\model\PG_insight;
 
 class GeoIP
 {
