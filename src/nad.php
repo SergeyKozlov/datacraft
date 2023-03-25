@@ -2,12 +2,16 @@
 
 namespace VideMe\Datacraft;
 
-use model\PG_demo_el;
+use VideMe\Datacraft\log\log;
+//$tm = new log();
+//exit(' root tm start exit ');
+use model\GeoIP;
 use model\PG_demo_insight;
+use model\PostgreSQL;
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/system/log/log.php');
-include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_insight.php');
-include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_el.php');
+//include_once($_SERVER['DOCUMENT_ROOT'] . '/system/log/log.php');
+//include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_insight.php');
+//include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_el.php');
 
 require($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
 
@@ -50,7 +54,7 @@ class NAD
 
     public function timeShift($date, $vel = 12) // Work, not used? // used 08062022
     {
-        $datetime = new DateTime($date);
+        $datetime = new \DateTime($date);
         //echo "\n\ttimeShift datetime: " . $datetime;
         //$timeShift= date("Y-m-d H:i:s.uO", strtotime("+1 month", $date));
         //echo "\n\ttimeShift timeShift: " . $timeShift;
@@ -208,7 +212,7 @@ class NAD
     public function getTimeForPG_tz()
     {
         // http://php.net/manual/ru/function.date-default-timezone-set.php
-        $trueTimeObj = new DateTime();
+        $trueTimeObj = new \DateTime();
         $trueTime = $trueTimeObj->format('Y-m-d H:i:s.uO');
         //$trueTime = substr($trueTime,0, -2);
         return $trueTime;
