@@ -62,6 +62,8 @@ namespace VideMe\Datacraft\log;
 //include_once($_SERVER['DOCUMENT_ROOT'] . '/sendmail/sendmail.php');
 //include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/ContentFilter.php');
 use VideMe\Datacraft\nad;
+//use model\PostgreSQL;
+use VideMe\Datacraft\model\PostgreSQL;
 
 //error_reporting(0); // Turn off error reporting
 error_reporting(E_ALL ^ E_DEPRECATED); // Report all errors
@@ -105,5 +107,16 @@ class log
 
         file_put_contents($welcome->nadlogs . date("Ymd") . '_' . $toFile['service'] . '_' . $toFile['type'] . '.txt', date("Ymd H:i:s") . ' : ' . $toFile['text'] . PHP_EOL, FILE_APPEND | LOCK_EX);
     }
-
+    public function pgSetTask($pgSetTask)
+    {
+        //echo "\r\n<hr>setEvent setEvent<br>";
+        //print_r($setEvent);
+        $welcome = new NAD();
+        if (empty($pgSetTask['task_id'])) $pgSetTask['task_id'] = $welcome->trueRandom();
+        //echo "\r\n<hr>pgSetTask task_id:<br>";
+        //print_r($pgSetTask['task_id']);
+        $pg = new PostgreSQL();
+        $trueTask = $pg->pgPaddingItems($pgSetTask); // TODO: dubble NOOO
+        return $pg->pgAddData($pg->table_tasks, $trueTask);
+    }
 }

@@ -1,19 +1,21 @@
 <?php
 
 namespace VideMe\Datacraft;
+require($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
 
 use VideMe\Datacraft\log\log;
 //$tm = new log();
-//exit(' root tm start exit ');
-use model\GeoIP;
-use model\PG_demo_insight;
-use model\PostgreSQL;
+//exit(' root nad start exit ');
+use VideMe\Datacraft\model\GeoIP;
+use VideMe\Datacraft\model\PG_demo_insight;
+use VideMe\Datacraft\model\PostgreSQL;
+use VideMe\Datacraft\model\RedisVideme;
+//use VideMe\Datacraft\RedisVideme;
 
 //include_once($_SERVER['DOCUMENT_ROOT'] . '/system/log/log.php');
 //include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_insight.php');
 //include_once($_SERVER['DOCUMENT_ROOT'] . '/src/model/PG_demo_el.php');
 
-require($_SERVER['DOCUMENT_ROOT'] . '/vendor/autoload.php');
 
 class NAD
 {
@@ -237,4 +239,134 @@ class NAD
             return 16;
         }
     }
+
+    public function memcachedSetKey($memcachedSetKey)
+    {
+        //echo "\r\n<hr>memcachedSetKey<br>";
+        //print_r($memcachedSetKey);
+        /*$bucket = $this->autoConnectToBucket(["bucket" => "tickets"]);
+        $bucket->upsert($memcachedSetKey["key"], $memcachedSetKey["value"], ["expiry" => 60 * 60 * 24 * 14]);
+        $getmc = new GetMemcached();
+        $mc = $getmc->getMemcached();*/
+        $getRredis = new RedisVideme();
+        $redis = $getRredis->redisConnect();
+        try {
+            //$mc->set($memcachedSetKey["key"], $memcachedSetKey["value"], 60 * 60 * 24 * 14);
+            $redis->set($memcachedSetKey["key"], $memcachedSetKey["value"]);
+            $redis->expire($memcachedSetKey["key"], 60 * 60 * 24 * 14);
+            return true;
+        } catch (Exception $e) {
+            //echo "Not found. " . $e->getMessage();
+            $log = new log();
+            $log->toFile(['service' => 'memcachedSetKey', 'type' => 'error', 'text' => 'memcachedSetKey error: key ' . $memcachedSetKey["key"] . ' value ' . $memcachedSetKey["value"]]);
+            return false;
+        }
+    }
+    public function CookieToUserId()
+    {
+        // redis-cli -h pub-redis-14102.us-east-1-4.1.ec2.garantiadata.com -p 14102 -a 2IIg4aHASXmDpTai
+        /*try {
+            $redis = new Predis\Client(array(
+                'scheme' => 'tcp',
+                'host' => 'pub-redis-14102.us-east-1-4.1.ec2.garantiadata.com',
+                'port' => 14102,
+                'password' => '2IIg4aHASXmDpTai'
+            ));
+            $userId = $redis->get($UserCookie);
+            return $userId;
+        } catch (Exception $e) {
+            //echo "Not found. "; //. $e->getMessage();
+            return false;
+        }
+        */
+        $userCookie = $this->GetUserCookieValue();
+        //echo "\n\r---> CookieToUserId:\n\r";
+        //print_r($userCookie);
+        //$this->setUserId('ertert');
+
+        if (!empty($userCookie)) {
+            /*$this->log->setEvent([
+                "type" => "attempt",
+                "message" => "set",
+                "val" => $CookieToUserId,
+                "file" => $_SERVER["PHP_SELF"],
+                "class" => __CLASS__,
+                "funct" => __FUNCTION__
+            ]);*/
+            $userId = $this->memcachedGetKey(["key" => $userCookie]);
+            //echo "\n\r---> CookieToUserId userId\n\r";
+            //print_r($userId);
+            if (!empty($userId)) {
+               // $this->checkUserBlocked($userId);
+                //$this->setUserId($userId);
+                return $userId;
+            } else {
+                /*$this->log->setEvent([
+                    "type" => "PEBKAC",
+                    "message" => "empty",
+                    "val" => $CookieToUserId,
+                    "file" => $_SERVER["PHP_SELF"],
+                    "class" => __CLASS__,
+                    "funct" => __FUNCTION__
+                ]);*/
+                return false;
+            }
+        } else {
+            return false;
+        }
+    }
+    public function GetUserCookieValue()
+    {
+        $HTTPHeaders = apache_request_headers();
+        if (!empty($_POST['usertoken'])) {
+            $userId = $_POST['usertoken'];
+        } elseif (!empty($HTTPHeaders['X-Videme-User-Token'])) {
+            $userId = $HTTPHeaders['X-Videme-User-Token'];
+        } elseif (!empty($_COOKIE["vide_nad"])) {
+            $userId = $_COOKIE["vide_nad"];
+        } elseif (!empty($_POST["nad"])) {
+            $userId = $_POST["nad"];
+        } elseif (!empty($_GET["nad"])) {
+            $userId = $_GET["nad"];
+        }
+        //echo "GetUserId userId " . $userId . " <--";
+        if (!empty($userId)) {
+            return $userId;
+        }
+    }
+    public function memcachedGetKey($memcachedGetKey)
+    {
+        /*try {
+            $bucketTickets = $this->autoConnectToBucket(["bucket" => "tickets"]);
+            $res = $bucketTickets->get($memcachedGetKey["key"]);
+            //unset ($bucketTickets);
+            //echo " memcachedGetKey res ";
+            //print_r($res);
+            return $this->ConvParseData($res->value);
+        } catch (Exception $e) {
+            //echo "Not found. " . $e->getMessage();
+            return false;
+        }
+        $getmc = new GetMemcached();
+        $mc = $getmc->getMemcached();*/
+        $getRredis = new RedisVideme();
+        $redis = $getRredis->redisConnect();
+        try {
+            //$res = $mc->get($memcachedGetKey["key"]);
+            $res = $redis->get($memcachedGetKey["key"]);
+            //echo " memcachedGetKey res ";
+            //print_r($res);
+            return $res;
+        } catch (Exception $e) {
+            //echo "Not found. " . $e->getMessage();
+            /* Не включать виснут web + studio7
+             * $sendmail = new sendmail();
+            $sendmail->SendStaffAlert(['message' => "Trends getEvent zRangeByScore error: " . $e]);
+            $log = new log();
+            $log->toFile(['service' => 'redis', 'type' => 'error', 'text' => 'Trends getEvent zRangeByScore error']);
+            $getRredis->redisRepair();*/
+            return false;
+        }
+    }
+
 }
