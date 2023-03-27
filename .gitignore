@@ -1,0 +1,13 @@
+*~
+#*#
+.*#
+*#
+composer.phar
+composer_2.phar
+composer_3.phar
+vendor/
+rec/uploads/
+system/test/rtc/uploads/
+system/cm/videos/
+system/cm/logs/
+.idea
