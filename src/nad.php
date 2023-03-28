@@ -21,6 +21,7 @@ class NAD
 {
     public function __construct(/*log $log*/)
     {
+        $this->nadtemp = "/usr/share/nginx/nadtemp/";
         $this->nadlogs = "/usr/share/nginx/nadlogs/";
     }
     public function outputDDBData($outputCBData)
@@ -368,5 +369,189 @@ class NAD
             return false;
         }
     }
+    public function getHashClientIp()
+    {
+        /*if (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])){
+            $IPclient = $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+        }*/
+
+        // Если проходит через наш Nginx
+        //return preg_replace('#, 83.169.208.155#', '', $IPclient);
+        //==return bin2hex(sip_hash("aON1dHrq90SbG8Hx", preg_replace('#, 83.169.208.155#', '', $_SERVER['HTTP_X_FORWARDED_FOR'])));
+        //return bin2hex(sip_hash("aON1dHrq90SbG8Hx", $IPclient)); //<-- Need sip_hash
+        //return bin2hex($IPclient);
+        return md5($this->getClientIp());
+        //$ticketid = bin2hex(sip_hash('aON1dHrq90SbG8Hx', $IPclient));
+    }
+    public function memcachedWebStart($memcachedWebStart)
+    {
+        /*$this->log->setEvent([
+            "type" => "info",
+            "message" => "set",
+            "val" => $memcachedWebStart["key"],
+            "file" => $_SERVER["PHP_SELF"],
+            "class" => __CLASS__,
+            "funct" => __FUNCTION__
+        ]);*/
+        //echo "memcachedWebStart:<br>\n\r";
+        //print_r($memcachedWebStart);
+        /*$bucket = $this->autoConnectToBucket(["bucket" => "tickets"]);
+        $bucket->upsert($memcachedWebStart["key"], "1", ["expiry" => 60 * 15]);
+        $getmc = new GetMemcached();
+        $mc = $getmc->getMemcached();
+        $mc->set($memcachedWebStart["key"], "1", 60 * 15);*/
+        $getRredis = new RedisVideme();
+        $redis = $getRredis->redisConnect();
+        $redis->set($memcachedWebStart["key"], "1");
+        $redis->expire($memcachedWebStart["key"], 60 * 15);
+
+    }
+    public function memcachedOnPublish($memcachedOnPublish)
+    {
+        $log = new log();
+        /*$log->setEvent([
+            "type" => "info",
+            "message" => $this->set,
+            "val" => $memcachedOnPublish["key"],
+            //"val" => "ticket: " . $_REQUEST["ticket"] . " ticketId: " . $_REQUEST["ticketId"] . " name: " . $_REQUEST["name"],
+            "file" => $_SERVER["PHP_SELF"],
+            "class" => __CLASS__,
+            "funct" => __FUNCTION__
+        ]);*/
+        try {
+            $key = $this->memcachedGetKey(["key" => $memcachedOnPublish["key"]]);
+            if (!empty($key)) {
+                /*$this->log->setEvent([
+                    "type" => "attempt",
+                    "message" => "set",
+                    "val" => $memcachedOnPublish["key"],
+                    "file" => $_SERVER["PHP_SELF"],
+                    "class" => __CLASS__,
+                    "funct" => __FUNCTION__
+                ]);*/
+                return true;
+            } else {
+                /*$this->log->setEvent([
+                    "type" => "attempt",
+                    "message" => "empty",
+                    //"val" => $memcachedOnPublish["key"],
+                    "val" => $key,
+                    "file" => $_SERVER["PHP_SELF"],
+                    "class" => __CLASS__,
+                    "funct" => __FUNCTION__
+                ]);*/
+                return false;
+                //return true;
+            }
+        } catch (Exception $e) {
+            /*$this->log->setEvent([
+                "type" => "error",
+                "message" => "set",
+                "val" => $memcachedOnPublish["key"],
+                "file" => $_SERVER["PHP_SELF"],
+                "class" => __CLASS__,
+                "funct" => __FUNCTION__
+            ]);*/
+            //echo "Not found. "; //. $e->getMessage();
+            //exit(1);
+            return false;
+        }
+    }
+    public function memcachedRecorddone($memcachedRecorddone)
+    {
+        /*$this->log->setEvent([
+            "type" => "info",
+            "message" => "set",
+            "val" => $memcachedRecorddone["key"],
+            //"val" => "ticket: " . $_REQUEST["ticket"] . " ticketId: " . $_REQUEST["ticketId"] . " name: " . $_REQUEST["name"],
+            "file" => $_SERVER["PHP_SELF"],
+            "class" => __CLASS__,
+            "funct" => __FUNCTION__
+        ]);*/
+        //echo "memcachedWebStart:<br>\n\r";
+        //print_r($memcachedWebStart);
+        /*$bucket = $this->autoConnectToBucket(["bucket" => "tickets"]);
+        return $bucket->upsert($memcachedRecorddone["key"], $memcachedRecorddone["value"], ["expiry" => 60 * 10]);
+        $getmc = new GetMemcached();
+        $mc = $getmc->getMemcached();
+        return $mc->set($memcachedRecorddone["key"], $memcachedRecorddone["value"], 60 * 10);*/
+        $getRredis = new RedisVideme();
+        $redis = $getRredis->redisConnect();
+        $redis->set($memcachedRecorddone["key"], $memcachedRecorddone["value"]);
+        $redis->expire($memcachedRecorddone["key"], 60 * 10);
+        return true;
+    }
+
+    public function uploadSetParam($uploadSetParam)
+    {
+        //echo "\n\ruploadSetParam\n\r";
+        //print_r($uploadSetParam);
+        $uploadDo['owner_id'] = $this->CookieToUserId();
+        if (!empty($uploadSetParam['title'])) {
+            $uploadDo['title'] = $uploadSetParam['title'];
+        } else {
+            $uploadDo['title'] = '';
+        }
+        if (!empty($uploadSetParam['content'])) {
+            $uploadDo['content'] = $uploadSetParam['content'];
+        } else {
+            $uploadDo['content'] = '';
+        }
+        if (!empty($uploadSetParam['album_id'])) {
+            $uploadDo['album_id'] = $uploadSetParam["album_id"];
+        } else {
+            $uploadDo['album_id'] = '';
+        }
+        if (!empty($uploadSetParam['ticket_id'])) $uploadDo['ticket_id'] = $uploadSetParam["ticket_id"]; //??????????????????
+//if (!empty($_POST['ticket'])) $retVal['ticket'] = $_POST["ticket"];
+        $uploadDo['task_id'] = $this->memcachedGetKey(['key' => $uploadSetParam['ticket_id']]);
+        $uploadDo['ticket'] = $this->memcachedGetKey(['key' => $uploadSetParam['ticket_id']]); // TODO: why?
+//$retVal['access'] = $_POST['access'] ?? 'private';
+        /* desabled because no web button if ($uploadDo['album_id'] == 'public') {
+            $uploadDo['access'] = 'public';
+        } elseif ($uploadDo['album_id'] == 'friends') {
+            $uploadDo['access'] = 'friends';
+        } elseif ($uploadDo['album_id'] == 'private') {
+            $uploadDo['access'] = 'private';
+        } elseif (!empty($uploadDo['album_id'])) {
+            $albumInfo = $this->pgAlbumInfoById($uploadDo);
+            echo 'albumInfo';
+            print_r($albumInfo);
+            $uploadDo['access'] = $albumInfo['access'];
+        }*/
+        $uploadDo['access'] = 'public'; // because no web button
+
+        if (!empty($_POST['upload_type'])) {
+            $uploadDo['upload_type'] = $uploadSetParam['upload_type'];
+        }
+        return $uploadDo;
+    }
+    public function getClientIp()
+    {
+        //$IPclient = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        // Если проходит через наш Nginx
+        //return preg_replace('#, 83.169.208.155#', '', $IPclient);
+        //return preg_replace('#, 83.169.208.155#', '', $_SERVER['HTTP_X_FORWARDED_FOR']);
+        //==return $_SERVER['HTTP_X_FORWARDED_FOR'];
+
+        $ipAddress = '';
+        if (isset($_SERVER['HTTP_CLIENT_IP']))
+            $ipAddress = $_SERVER['HTTP_CLIENT_IP'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED_FOR']))
+            $ipAddress = $_SERVER['HTTP_X_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_X_FORWARDED']))
+            $ipAddress = $_SERVER['HTTP_X_FORWARDED'];
+        else if (isset($_SERVER['HTTP_FORWARDED_FOR']))
+            $ipAddress = $_SERVER['HTTP_FORWARDED_FOR'];
+        else if (isset($_SERVER['HTTP_FORWARDED']))
+            $ipAddress = $_SERVER['HTTP_FORWARDED'];
+        else if (isset($_SERVER['REMOTE_ADDR']))
+            $ipAddress = $_SERVER['REMOTE_ADDR'];
+        else
+            $ipAddress = 'UNKNOWN';
+        return $ipAddress;
+    }
+
 
 }

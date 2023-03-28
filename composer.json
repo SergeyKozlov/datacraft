@@ -3,8 +3,8 @@
     "description": "data crafting",
     "type": "library",
     "require": {
-        "geoip2/geoip2": "v2.13.0",
-        "predis/predis": "v2.1.2",
+        "geoip2/geoip2": "~2.0",
+        "predis/predis": "dev-main",
         "vlucas/phpdotenv": "5.5.0"
     },
     "autoload": {
@@ -19,4 +19,3 @@
         }
     ]
 }
-

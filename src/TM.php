@@ -24,12 +24,12 @@ use PG_demo_insight;
 use VideMe\Datacraft\model\PostgreSQL;
 
 
-include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
+/*include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/index.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PostgreSQL.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PG_demo_el.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/PG_demo_insight.php');
 include_once($_SERVER['DOCUMENT_ROOT'] . '/nad/model/GeoIP.php');
-include_once($_SERVER['DOCUMENT_ROOT'] . '/system/log/log.php');
+include_once($_SERVER['DOCUMENT_ROOT'] . '/system/log/log.php')*/;
 
 class TM {
     public $item_id, $item_created_at, $luft, $range1start, $range1stop, $date1start, $date1stop, $date2start, $date2stop;

@@ -355,6 +355,18 @@ ON CONFLICT DO NOTHING;";
         return $res;
     }
 
+    public function pgUpdateDataArray($table, $newData, $whereColVal)
+    {
+        try {
+            $result = pg_update($this->pgConn, $table, $newData, $whereColVal);
+        } catch (Exception $e) {
+            echo 'Pg. ' . $e;
+            return false;
+            //echo "No file. ";
+
+        }
+        return $result;
+    }
 
     public function pgPaddingItems($pgPaddingItems)
     {
