@@ -19,10 +19,30 @@ use VideMe\Datacraft\model\RedisVideme;
 
 class NAD
 {
+    public $nadlogs;
+
     public function __construct(/*log $log*/)
     {
-        $this->nadtemp = "/usr/share/nginx/nadtemp/";
-        $this->nadlogs = "/usr/share/nginx/nadlogs/";
+        //$this->nadtemp = "/usr/share/nginx/nadtemp/";
+        //$this->nadlogs = "/usr/share/nginx/nadlogs/";
+        $this->setNadlogs($_SERVER['DOCUMENT_ROOT'] . '/../nadlogs/');
+
+    }
+
+    /**
+     * @param string $nadlogs
+     */
+    public function setNadlogs(string $nadlogs): void
+    {
+        $this->nadlogs = $nadlogs;
+    }
+
+    /**
+     * @return string
+     */
+    public function getNadlogs(): string
+    {
+        return $this->nadlogs;
     }
     public function outputDDBData($outputCBData)
     {
@@ -483,50 +503,7 @@ class NAD
         return true;
     }
 
-    public function uploadSetParam($uploadSetParam)
-    {
-        //echo "\n\ruploadSetParam\n\r";
-        //print_r($uploadSetParam);
-        $uploadDo['owner_id'] = $this->CookieToUserId();
-        if (!empty($uploadSetParam['title'])) {
-            $uploadDo['title'] = $uploadSetParam['title'];
-        } else {
-            $uploadDo['title'] = '';
-        }
-        if (!empty($uploadSetParam['content'])) {
-            $uploadDo['content'] = $uploadSetParam['content'];
-        } else {
-            $uploadDo['content'] = '';
-        }
-        if (!empty($uploadSetParam['album_id'])) {
-            $uploadDo['album_id'] = $uploadSetParam["album_id"];
-        } else {
-            $uploadDo['album_id'] = '';
-        }
-        if (!empty($uploadSetParam['ticket_id'])) $uploadDo['ticket_id'] = $uploadSetParam["ticket_id"]; //??????????????????
-//if (!empty($_POST['ticket'])) $retVal['ticket'] = $_POST["ticket"];
-        $uploadDo['task_id'] = $this->memcachedGetKey(['key' => $uploadSetParam['ticket_id']]);
-        $uploadDo['ticket'] = $this->memcachedGetKey(['key' => $uploadSetParam['ticket_id']]); // TODO: why?
-//$retVal['access'] = $_POST['access'] ?? 'private';
-        /* desabled because no web button if ($uploadDo['album_id'] == 'public') {
-            $uploadDo['access'] = 'public';
-        } elseif ($uploadDo['album_id'] == 'friends') {
-            $uploadDo['access'] = 'friends';
-        } elseif ($uploadDo['album_id'] == 'private') {
-            $uploadDo['access'] = 'private';
-        } elseif (!empty($uploadDo['album_id'])) {
-            $albumInfo = $this->pgAlbumInfoById($uploadDo);
-            echo 'albumInfo';
-            print_r($albumInfo);
-            $uploadDo['access'] = $albumInfo['access'];
-        }*/
-        $uploadDo['access'] = 'public'; // because no web button
 
-        if (!empty($_POST['upload_type'])) {
-            $uploadDo['upload_type'] = $uploadSetParam['upload_type'];
-        }
-        return $uploadDo;
-    }
     public function getClientIp()
     {
         //$IPclient = $_SERVER['HTTP_X_FORWARDED_FOR'];
