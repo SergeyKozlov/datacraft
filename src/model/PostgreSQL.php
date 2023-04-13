@@ -875,4 +875,5 @@ ON CONFLICT DO NOTHING;";
         return $pgTrueItems;
     }
 
+
 }
