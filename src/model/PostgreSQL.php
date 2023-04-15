@@ -368,6 +368,29 @@ ON CONFLICT DO NOTHING;";
         return $result;
     }
 
+    public function pgDataByColumn($pgDataByColumn)
+    {
+        try {
+            $result = pg_query($this->pgConn, "
+              SELECT * FROM " . $pgDataByColumn['table'] . " 
+              WHERE " . $pgDataByColumn['find_column'] . " = '" . $pgDataByColumn['find_value'] . "'");
+            //echo "\npgOneDataByColumn \n";
+            //print_r($result);
+        } catch (Exception $e) {
+            echo 'Pg. ' . $e;
+            return false;
+            //echo "No file. ";
+        }
+        //pg_close($this->pgConn);
+        if ($result) {
+            //return pg_fetch_row($result);
+            //return pg_fetch_assoc($result);
+            return pg_fetch_all($result);
+            //return pg_fetch_result($result, 0);
+        } else {
+            return false;
+        }
+    }
     public function pgPaddingItems($pgPaddingItems)
     {
         //echo "\npgPaddingItems pgPaddingItems\n";
@@ -874,6 +897,5 @@ ON CONFLICT DO NOTHING;";
 
         return $pgTrueItems;
     }
-
 
 }

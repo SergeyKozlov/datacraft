@@ -251,7 +251,14 @@ class NAD
             return false;
         }
     }
-
+    public function setOffset()
+    {
+        if (!empty($_REQUEST['offset'])) {
+            return $_REQUEST['offset'];
+        } else {
+            return 0;
+        }
+    }
     public function setLimit()
     {
         if (!empty($_REQUEST['limit'])) {
